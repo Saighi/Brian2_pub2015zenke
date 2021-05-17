@@ -35,6 +35,10 @@ cpp_code_dir = data_dir + 'tmp/' + sim_id
 #prefs.devices.cpp_standalone.openmp_threads = 4
 
 
+#defaultclock.dt = 0.01*ms
+
+
+
 # 0) parameter initialization
 # ===========================
 
@@ -173,7 +177,7 @@ gE = ampa_ratio*gampa + nmda_ratio*gnmda : 1
 dU/dt = (Urest-U)/tau + gE*(Uexc-U)/tau + ga*(Uinh-U)/tau : volt
 '''
 datas = np.loadtxt("/users/nsr/saighi/orchestratedSaighi/src/data/one_neuron_spk_many_input")
-my_array = datas[:,0]-0.0003
+my_array = datas[:,0]-0.0008
 neurons = datas[:,1]
 
 G = SpikeGeneratorGroup(NE, neurons,my_array*second)
@@ -290,7 +294,7 @@ SpikeMonE = SpikeMonitor(E)
 SpikeMonG = SpikeMonitor(G)
 SpikeMonInput = SpikeMonitor(Input)
 
-StateMonInputE = StateMonitor(SInputE, ['w','wt','x','u'],record = range(NE))
+StateMonInputE = StateMonitor(SInputE, ['w','wt','x','u'],record = range(NE), dt = 0.1*ms)
 
 # SpikeMonInput = SpikeMonitor(Input)
 

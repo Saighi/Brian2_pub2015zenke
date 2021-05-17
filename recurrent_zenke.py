@@ -212,7 +212,6 @@ E = NeuronGroup(NE,
 
 
 
-
 # variable initialization
 # E.U = 'rand()*(Uthr-Urest) + Urest'
 
@@ -446,7 +445,8 @@ np.savez_compressed(data_dir+'%s-wEEfin.npz'%sim_id,
                     w=SEE.w)
 np.savez_compressed(data_dir+'%s-wStimEfin.npz'%sim_id,
                     w=SInputE.w)
-
+np.savez_compressed(data_dir+'%s-wIEfin.npz'%sim_id,
+                    w=SIE.w)
 np.savez_compressed(data_dir+'%s-spkI.npz'%sim_id,
                     t=SpikeMonI.t,
                     i=SpikeMonI.i)

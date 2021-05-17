@@ -189,25 +189,17 @@ dU/dt = (Urest-U)/tau + gE*(Uexc-U)/tau + gI*(Uinh-U)/tau : volt
 
 
 datas = np.loadtxt("/users/nsr/saighi/orchestratedSaighi/src/data/sim_one_ex_inh_neuron_many_input")
-my_array = datas[:,0]-0.0003
+my_array = datas[:,0]-0.0001
 neurons = datas[:,1]
 
-G = SpikeGeneratorGroup(NE, neurons,my_array*second)
-#G = SpikeGeneratorGroup(1,[],[]*ms)
+# create external input neurons
+Input = SpikeGeneratorGroup(NE, neurons,my_array*second)
+
 
 # neuron groups
 # -------------
 
 # create external input neurons
-Input = NeuronGroup(NE,
-                    '''
-                    isSpiking : 1
-                    rates = Fstim : Hz''',
-                    threshold='isSpiking == 1',
-                    reset='''
-                    isSpiking = 0
-                    ''',
-                    method='euler')
 
 # excitatory neuron group
 E = NeuronGroup(Exc_nb,
@@ -367,8 +359,9 @@ SpikeMonI = SpikeMonitor(I)
 SpikeMonG = SpikeMonitor(G)
 SpikeMonInput = SpikeMonitor(Input)
 
-StateMonInputE = StateMonitor(SInputE, ['w','wt','x','u'],record = [0])
-StateMonIE = StateMonitor(SIE,['w'],record = range(NE))
+StateMonInputE = StateMonitor(SInputE, ['w','wt','x','u'],record = [0],dt = 1000*ms)
+StateMonEE = StateMonitor(SEE, ['w','wt','x','u'],record = [0],dt = 1000*ms)
+StateMonIE = StateMonitor(SIE,['w'],record = range(NE),dt = 1000*ms)
 # SpikeMonInput = SpikeMonitor(Input)
 
 StateMonE = StateMonitor(E, ['U','ga','gampa','gnmda','theta',"gI"], record = [0])
@@ -376,7 +369,7 @@ StateMonI = StateMonitor(I, ['U','gampa','gnmda','theta'], record = [0])
 StateMonInput = StateMonitor(Input, ['isSpiking'],record = [0])
 
 
-net = Network(SIE,StateMonIE,SpikeMonI,SEI,StateMonI,I,SpikeMonInput,SpikeMonG,G,StateMonE,SpikeMonE,Input,E,SInputE,SGI,StateMonInput,StateMonInputE)
+net = Network(StateMonEE,SIE,StateMonIE,SpikeMonI,SEI,StateMonI,I,SpikeMonInput,SpikeMonG,G,StateMonE,SpikeMonE,Input,E,SInputE,SGI,StateMonInput,StateMonInputE)
 net.schedule = ['start', 'groups', 'thresholds', 'synapses', 'resets', 'end']
 # 4) Create c++ executable and run simulation
 # ===========================================
@@ -446,6 +439,14 @@ np.savez_compressed(data_dir+'%s-synapses_InputE.npz'%sim_id,
                     x=StateMonInputE.x,
                     u=StateMonInputE.u,
                     )
+
+np.savez_compressed(data_dir+'%s-synapses_EE.npz'%sim_id,
+                    w=StateMonEE.w,
+                    wt=StateMonEE.wt,
+                    x=StateMonEE.x,
+                    u=StateMonEE.u,
+                    )
+
 
 np.savez_compressed(data_dir+'%s-synapses_IE.npz'%sim_id,
                     w=StateMonIE.w,

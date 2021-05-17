@@ -17,7 +17,7 @@ name = "/users/nsr/saighi/orchestratedSaighi/src/data/one_neuron_spk_many_input"
 
 
 for n in range(nb_neurons_stim):
-    spiketrain = homogeneous_poisson_process(15*pq.Hz,0.1*pq.second,100*pq.second,as_array=True,refractory_period=0.002*pq.second)
+    spiketrain = homogeneous_poisson_process(10*pq.Hz,0.1*pq.second,100*pq.second,as_array=True,refractory_period=0.002*pq.second)
     for i in np.column_stack((spiketrain,np.full(len(spiketrain),n))):
         spikes.append(list(i))
 
@@ -42,9 +42,10 @@ f.close()
 
 # %%
 dir_end ="/mnt/data2/paul_data/"
-sim_name = "one_neuron_1_many_input"
+#sim_name = "one_neuron_1_many_inpuµt"
+sim_name = "one_neuron_smaller_time_step"
 # %%
-####AURYN
+####Brian
 excitatory = np.load(dir_end+sim_name+"-E.npz")
 Input = np.load(dir_end+sim_name+"-Input.npz")
 spikes_Input = np.load(dir_end+sim_name+"-spikes_Input.npz")
@@ -52,7 +53,9 @@ spikes_E = np.load(dir_end+sim_name+"-spikes_E.npz")
 spikes_G = np.load(dir_end+sim_name+"-spikes_G.npz")
 weight_InputE = np.load(dir_end+sim_name+"-synapses_InputE.npz")
 # %%
-datadir = os.path.expanduser("~/data/sim_network/sim_one_excitatory_neuron_many_input") # Set this to your data path
+
+#datadir = os.path.expanduser("~/data/sim_network/sim_one_excitatory_neuron_many_input") # Set this to your data path
+datadir = os.path.expanduser("~/data/sim_network/sim_one_excitatory_neuron_many_input_smaller_time_step")
 prefix = "rf1"
 
 # %%
@@ -64,7 +67,7 @@ sfo_e = AurynBinarySpikeView(spkfiles)
 spikes_ext = np.array(sfo.get_spikes())
 spikes_e = np.array(sfo_e.get_spikes())
 # %%
-####Brian
+####AURYN
 membrane_ex= pd.read_csv("%s/%s.0.e.mem"%(datadir,prefix),delimiter=' ').values
 sse_w= pd.read_csv("%s/%s.0.sse"%(datadir,prefix),delimiter=' ').values
 sse_x_u= pd.read_csv("%s/%s.u_x"%(datadir,prefix),delimiter=' ').values
@@ -80,25 +83,29 @@ ex_g_ampa= pd.read_csv("%s/%s.0.e.g_ampa"%(datadir,prefix),delimiter=' ').values
 # %%
 plt.plot(sse_x_u[:,2])
 plt.plot(weight_InputE["u"][0])
+print(np.mean(sse_x_u[:,2]))
 #plt.plot(sse_x_u[:,2]-weight_InputE["u"][0][:-1])
 # %%
 plt.plot(sse_x_u[:,1])
 plt.plot(weight_InputE["x"][0])
+print(np.mean(sse_x_u[:,1]))
 # %%
 plt.plot(sse_w[:,100])
 plt.plot(weight_InputE["w"][100])
 
 # %%
-
-fig = go.Figure(data=go.Scatter( y=ex_g_ampa[:,1][:10000]))
-fig.add_trace(go.Scatter( y=excitatory["gampa"][0][:10000]))
-fig.show()
-# plt.plot(ex_g_ampa[:,1])
-# plt.plot(excitatory["gampa"][0])
+print(len(ex_g_ampa))
 
 # %%
-fig = go.Figure(data=go.Scatter( y=excitatory["U"][0]))
-fig.add_trace(go.Scatter( y=membrane_ex[:,1]))
+fig = go.Figure(data=go.Scatter( y=ex_g_ampa[:,1]))
+fig.add_trace(go.Scatter( y=excitatory["gampa"][0]))
+fig.show()
+#plt.plot(ex_g_ampa[:,1])
+#plt.plot(excitatory["gampa"][0])
+
+# %%
+fig = go.Figure(data=go.Scatter( y=excitatory["U"][0][:10000]))
+fig.add_trace(go.Scatter( y=membrane_ex[:,1][:10000]))
 fig.show()
 # plt.plot(excitatory["U"][0])
 # plt.plot(membrane_ex[:,1])
@@ -137,8 +144,15 @@ len(sse_w[100000,:][1:-1])
 for t in range(int(sse_w.shape[0]/4),sse_w.shape[0],int(sse_w.shape[0]/4)):
     plt.hist(sse_w[t,1:-1],alpha=0.7,bins=15)
     plt.hist(weight_InputE["w"][:,t],alpha=0.7,bins=15)
+    plt.xlabel("weights Ext->E")
+    plt.title("Time: "+str(t/10000)+"s")
     plt.show()
-
+# %%
+for t in range(int(sse_w.shape[0]/4),sse_w.shape[0],int(sse_w.shape[0]/4)):
+    plt.hist((sse_w[t,1:-1]-weight_InputE["w"][:,t]),bins=15)
+    plt.xlabel("difference between Auryn and Brian")
+    plt.title("Time: "+str(t/10000)+"s")
+    plt.show()
 # %%
 len(weight_InputE["w"][:,-1])
 # %%
