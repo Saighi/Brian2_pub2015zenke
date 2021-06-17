@@ -26,12 +26,12 @@ sim_name = "21Apr"
 spikesI = np.load(dir_end+sim_name+"-spkI.npz")
 rates=np.load(dir_end+sim_name+"-rate.npz")
 weights = np.load(dir_end+sim_name+"-wEEfin.npz")['w']
-weights_ie = np.load(dir_end+sim_name+"-wIEfin.npz")['w']
-weightsext = np.load(dir_end+sim_name+"-wStimEfin.npz")['w']
+# weights_ie = np.load(dir_end+sim_name+"-wIEfin.npz")['w']
+# weightsext = np.load(dir_end+sim_name+"-wStimEfin.npz")['w']
 
 # %%
 num_mpi_ranks = 4 # the number of sims you used in parallel
-datadir = os.path.expanduser("~/mnt/data2/paul_data/Auryn_archives/sim_stady_state_brian") # Set this to your data path
+datadir = os.path.expanduser("/mnt/data2/paul_data/Auryn_archives/sim_stady_state_brian") # Set this to your data path
 prefix = "rf1"
 
 #%%
